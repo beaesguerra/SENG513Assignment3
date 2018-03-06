@@ -7,7 +7,7 @@ module.exports = {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [ processMessage()],
     update: [],
     patch: [],
     remove: []

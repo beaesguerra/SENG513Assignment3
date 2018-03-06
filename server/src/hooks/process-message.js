@@ -1,17 +1,20 @@
 // Use this hook to manipulate incoming or outgoing data.
 // For more information on hooks see: http://docs.feathersjs.com/api/hooks.html
 
-// eslint-disable-next-line no-unused-vars
-module.exports = function (options = {}) {
+module.exports = function (options = {}) { // eslint-disable-line no-unused-vars
   return async context => {
-    const text = context.data.text;
-    const user = context.params.user; 
-    console.log("hello");
+    const text = context.data.text
+    const from = context.data.from
+
+    // Override the original data (so that people can't submit additional stuff)
     context.data = {
       text,
-      userId: user._id,
-      createdAt: new Date().getTime()
-    }
+      // userId: user._id,
+      createdAt: new Date().getTime(),
+      from,
+    };
+
+    // Best practice: hooks should always return the context
     return context;
   };
 };
