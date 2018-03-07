@@ -6,14 +6,12 @@ module.exports = function (options = {}) { // eslint-disable-line no-unused-vars
     const text = context.data.text
     const from = context.data.from
 
-    // Override the original data (so that people can't submit additional stuff)
     context.data = {
       text,
       createdAt: new Date().getTime(),
       from,
     };
 
-    // Best practice: hooks should always return the context
     return context;
   };
 };

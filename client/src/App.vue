@@ -2,7 +2,7 @@
   <div id="app">
     <ul>
       <li v-for="message in messages" :key="message._id">
-        {{message.from}}
+        <b>{{message.from.nickname}}</b>
         <br>
         {{message.text}}
       </li>
@@ -32,11 +32,8 @@ export default {
       .on('created', user => this.users.push(user));
     this.users = await this.client.service('users').find({});
 
-
     // if no cookie, create users
-    this.currentUser = 'bradley';
-    this.client.service('users').create({
-      nickname: this.currentUser,
+    this.currentUser = await this.client.service('users').create({
     });
   },
   computed: {

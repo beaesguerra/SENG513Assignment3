@@ -1,11 +1,12 @@
 
+const processUser = require('../../hooks/process-user');
 
 module.exports = {
   before: {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [processUser()],
     update: [],
     patch: [],
     remove: []
