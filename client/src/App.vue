@@ -27,18 +27,30 @@ export default {
     this.client.service('messages')
       .on('created', message => this.messages.push(message));
     this.messages = await this.client.service('messages').find({});
+
+    this.client.service('users')
+      .on('created', user => this.users.push(user));
+    this.users = await this.client.service('users').find({});
+
+
+    // if no cookie, create users
+    this.currentUser = 'bradley';
+    this.client.service('users').create({
+      nickname: this.currentUser,
+    });
   },
   computed: {
     inputIsEmpty() {
-      return this.inputField.length == 0
-    }
+      return this.inputField.length === 0;
+    },
   },
   data() {
     return {
-      messages: [
-      ],
+      messages: [],
+      users: [],
       inputField: '',
       client: null,
+      currentUser: '',
     };
   },
   methods: {
@@ -46,7 +58,7 @@ export default {
       if (this.inputField.length > 0) {
         this.client.service('messages').create({
           text: this.inputField,
-          from: 'Bea',
+          from: this.currentUser,
         });
         this.inputField = '';
       }
