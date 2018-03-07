@@ -1,6 +1,12 @@
 <template>
   <div id="app">
-    <h1>{{myMessage}}</h1>
+    <ul>
+      <li v-for="message in messages" :key="message">
+        {{message}}
+      </li>
+    </ul>
+    <input>
+    <button> Send </button>
   </div>
 </template>
 
@@ -10,13 +16,17 @@ export default {
   name: 'App',
   data() {
     return {
-      myMessage: 'Hi there Bea',
+      messages: [
+        'hi',
+        'hello',
+        'bye',
+      ],
 
     };
   },
   methods: {
     addTwo: a => a + 2,
-  }
+  },
 };
 </script>
 
