@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <h1>{{this.currentUser.nickname}}</h1>
     <ul>
       <li v-for="message in formattedMessages" :key="message._id">
         <b>{{message.from.nickname}}</b>

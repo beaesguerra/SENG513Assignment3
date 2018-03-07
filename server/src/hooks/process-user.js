@@ -1,8 +1,8 @@
 // Use this hook to manipulate incoming or outgoing data.
 // For more information on hooks see: http://docs.feathersjs.com/api/hooks.html
 
-const adjectives = ['yummy', 'pink', 'cute', 'tiny', 'tasty', 'blueberry', 'chocolate', 'vanilla', 'strawberry'];
-const nouns = ['cupcake', 'macaron', 'ice cream', 'cookie', 'pie', 'cakepop', 'cheesecake'];
+const adjectives = ['yummy', 'blueberry', 'chocolate', 'vanilla', 'strawberry', 'raspberry', 'mango'];
+const nouns = ['cupcake', 'macaron', 'ice cream', 'cookie', 'pie', 'cakepop', 'cheesecake', 'lollipop', 'gumdrop', 'jelly bean', 'gummy bear'];
 
 function generateRandomNickName() {
   const adjective = adjectives[Math.floor(Math.random() * adjectives.length)];
