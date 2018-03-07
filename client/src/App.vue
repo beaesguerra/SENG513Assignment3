@@ -1,8 +1,9 @@
 <template>
   <div id="app">
     <ul>
-      <li v-for="message in messages" :key="message._id">
+      <li v-for="message in formattedMessages" :key="message._id">
         <b>{{message.from.nickname}}</b>
+        {{message.timestamp}}
         <br>
         {{message.text}}
       </li>
@@ -17,6 +18,7 @@
 import * as io from 'socket.io-client';
 import * as feathers from '@feathersjs/feathers';
 import * as socketio from '@feathersjs/socketio-client';
+import * as moment from 'moment';
 
 export default {
   name: 'App',
@@ -39,6 +41,13 @@ export default {
   computed: {
     inputIsEmpty() {
       return this.inputField.length === 0;
+    },
+    formattedMessages() {
+      return this.messages.map((message) => {
+        const formattedMessage = { ...message };
+        formattedMessage.timestamp = moment(message.createdAt).format('MMM D h:mm a');
+        return formattedMessage;
+      });
     },
   },
   data() {
