@@ -13,6 +13,7 @@
     </ul>
     </div>
     <div id="messenger">
+      <div id="spacer"></div>
       <div id="messagesArea">
       <ul class="messages">
         <li v-for="message in formattedMessages" :key="message._id" 
@@ -97,7 +98,7 @@ export default {
           "MMM D h:mm a"
         );
         return formattedMessage;
-      });
+      }).reverse();
     },
     onlineUsers() {
       return this.users.filter(user => user.online === true);
@@ -109,8 +110,13 @@ export default {
       users: [],
       inputField: "",
       client: null,
-      currentUser: {}
+      currentUser: {},
+      scrollToBottom: true,
     };
+  },
+  updated() {
+      this.scrollMessengerToBottom();
+      this.scrollToBottom = false;
   },
   methods: {
     isValidNickname(nickname) {
@@ -118,6 +124,12 @@ export default {
         user => user.nickname === nickname
       );
       return sameNickname.length === 0;
+    },
+    scrollMessengerToBottom() {
+      // scroll to bottom
+      const scroll = document.getElementById('messagesArea');
+      scroll.scrollTop = scroll.scrollHeight;
+      scroll.animate({scrollTop: scroll.scrollHeight});
     },
     send() {
       if (this.inputField.length > 0) {
@@ -147,6 +159,7 @@ export default {
           });
         }
         this.inputField = "";
+        this.scrollToBottom = true;
       }
     }
   }
@@ -203,11 +216,19 @@ body {
 
 #inputArea {
   margin: 5px;
-  height: 20%;
+  padding: 10px;
+  height: 5%;
+  display: flex;
+  flex: 0 0 auto;
 }
 
 #inputArea input {
   height: 100%;
   width: 100%;
+}
+
+#spacer {
+  height: 0;
+  flex-grow: 1;
 }
 </style>
