@@ -47,11 +47,14 @@ import * as io from "socket.io-client";
 import * as feathers from "@feathersjs/feathers";
 import * as socketio from "@feathersjs/socketio-client";
 import * as moment from "moment";
+import Cookies from "js-cookie";
 
 const COMMANDS = {
   NICKNAME: "/nick ",
   NICKCOLOR: "/nickcolor "
 };
+
+const COOKIE_KEY = 'messenger_user_id';
 
 export default {
   name: "App",
@@ -77,9 +80,19 @@ export default {
     this.users = await this.client.service("users").find({});
 
     // if no cookie, create users
-    // eslint-disable-next-line no-underscore-dangle
-    this.currentUser = await this.client.service("users").create({});
-
+    const cookie = document.cookie;
+    const userId = Cookies.get(COOKIE_KEY);
+    if (userId) { 
+      const results = this.users.filter(user => user._id === userId);
+      if (results.length > 0) {
+        this.currentUser = results[0];
+      }
+    } else {
+      // eslint-disable-next-line no-underscore-dangle
+      this.currentUser = await this.client.service("users").create({});
+      Cookies.set(COOKIE_KEY, this.currentUser._id);
+    }
+   
     // logged in
     socket.emit("log in", this.currentUser);
 
@@ -129,6 +142,11 @@ export default {
       );
       return sameNickname.length === 0;
     },
+    isValidColor(colorToCheck) {
+      // TODO
+      return true;
+      
+    },
     scrollMessengerToBottom() {
       // scroll to bottom
       const scroll = document.getElementById('messagesArea');
@@ -154,8 +172,11 @@ export default {
           const color = `#${this.inputField.substring(
             COMMANDS.NICKCOLOR.length
           )}`;
-          // TODO validate
-          this.client.service("users").patch(this.currentUser._id, { color });
+          if (this.isValidColor(color)) {
+            this.client.service("users").patch(this.currentUser._id, { color });
+          } else {
+            alert(`${color} is not a valid color. Please try again in the format rrggbb.`);
+          }
         } else {
           this.client.service("messages").create({
             text: this.inputField,
