@@ -26,6 +26,10 @@ import * as feathers from '@feathersjs/feathers';
 import * as socketio from '@feathersjs/socketio-client';
 import * as moment from 'moment';
 
+const COMMANDS = {
+  NICKNAME: '/nick',
+};
+
 export default {
   name: 'App',
   async created() {
@@ -37,15 +41,13 @@ export default {
       .on('created', user => this.users.push(user));
     this.client.service('users')
       .on('patched', (user) => {
+        // eslint-disable-next-line no-underscore-dangle
         if (user._id === this.currentUser._id) {
           this.currentUser = user;
         }
         this.users = this.users.map((originalUser) => {
           // eslint-disable-next-line no-underscore-dangle
           if (originalUser._id === user._id) {
-            console.log(user);
-            console.log(originalUser);
-            console.log('===========')
             return { ...originalUser, ...user };
           }
           return originalUser;
@@ -91,10 +93,15 @@ export default {
   methods: {
     send() {
       if (this.inputField.length > 0) {
-        this.client.service('messages').create({
-          text: this.inputField,
-          from: this.currentUser,
-        });
+        if (this.inputField.startsWith(COMMANDS.NICKNAME)) {
+          const nickname = this.inputField.substring(COMMANDS.NICKNAME.length + 1);
+          this.client.service('users').patch(this.currentUser._id, { nickname }); 
+        } else {
+          this.client.service('messages').create({
+            text: this.inputField,
+            from: this.currentUser,
+          });
+        }
         this.inputField = '';
       }
     },
