@@ -91,11 +91,21 @@ export default {
     };
   },
   methods: {
+    isValidNickname(nickname) {
+      const sameNickname = this.users.filter(user => user.nickname === nickname);
+      return sameNickname.length === 0;
+    },
     send() {
       if (this.inputField.length > 0) {
         if (this.inputField.startsWith(COMMANDS.NICKNAME)) {
           const nickname = this.inputField.substring(COMMANDS.NICKNAME.length + 1);
-          this.client.service('users').patch(this.currentUser._id, { nickname }); 
+          if (this.isValidNickname(nickname)) {
+            // eslint-disable-next-line no-underscore-dangle
+            this.client.service('users').patch(this.currentUser._id, { nickname });
+          } else {
+            // eslint-disable-next-line no-alert
+            alert(`${nickname} already exists. Please choose another nickname.`);
+          }
         } else {
           this.client.service('messages').create({
             text: this.inputField,
