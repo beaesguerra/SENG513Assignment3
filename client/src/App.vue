@@ -74,6 +74,7 @@ export default {
     formattedMessages() {
       return this.messages.map((message) => {
         const formattedMessage = { ...message };
+        formattedMessage.from = this.users.find(user => user._id === message.from);
         formattedMessage.timestamp = moment(message.createdAt).format('MMM D h:mm a');
         return formattedMessage;
       });
@@ -114,7 +115,7 @@ export default {
         }else {
           this.client.service('messages').create({
             text: this.inputField,
-            from: this.currentUser,
+            from: this.currentUser._id,
           });
         }
         this.inputField = '';
