@@ -2,7 +2,9 @@
   <div id="app">
     <h1>{{currentUser.nickname}}</h1>
     <ul class="users">
-      <li v-for="user in onlineUsers" :key="user._id">
+      <li v-for="user in onlineUsers" :key="user._id" :style="{ 
+        color: user._id === currentUser._id ? user.color : undefined, 
+        fontWeight: user._id === currentUser._id ? 'bold' : undefined }">
         {{user.nickname}}
       </li>
     </ul>
