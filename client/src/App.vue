@@ -7,7 +7,7 @@
       <h1>messenger</h1>
     <h3>Users ({{ onlineUsers.length }})</h3>
     <ul class="users">
-      <li v-for="user in users" :key="user._id" :style="{ 
+      <li v-for="user in users" :key="user._id" :style="{
         color: user.online ? user.color : '#696969',
         fontWeight: user._id === currentUser._id ? 'bold' : undefined
         }">
@@ -19,8 +19,8 @@
       <div id="spacer"></div>
       <div id="messagesArea">
       <ul class="messages">
-        <li v-for="message in formattedMessages" :key="message._id" 
-        :style="{ 
+        <li v-for="message in formattedMessages" :key="message._id"
+        :style="{
           backgroundColor: message.from.color,
           alignSelf: message.from._id === currentUser._id ? 'flex-end' : 'flex-start'
         }">
@@ -33,7 +33,7 @@
       </div>
       <div id="inputArea">
     <textarea v-model="inputField" v-on:keyup.enter="send" placeholder="Message"/>
-    <button v-on:click="send" :disabled='inputIsEmpty' id="sendButton"> 
+    <button v-on:click="send" :disabled='inputIsEmpty' id="sendButton">
       <svg style="width:24px;height:24px" viewBox="0 0 24 24">
     <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z" />
 </svg>
@@ -44,151 +44,145 @@
 </template>
 
 <script>
-import * as io from "socket.io-client";
-import * as feathers from "@feathersjs/feathers";
-import * as socketio from "@feathersjs/socketio-client";
-import * as moment from "moment";
-import Cookies from "js-cookie";
+import * as io from 'socket.io-client';
+import * as feathers from '@feathersjs/feathers';
+import * as socketio from '@feathersjs/socketio-client';
+import * as moment from 'moment';
+import Cookies from 'js-cookie';
 
 const COMMANDS = {
-  NICKNAME: "/nick ",
-  NICKCOLOR: "/nickcolor "
+  NICKNAME: '/nick ',
+  NICKCOLOR: '/nickcolor ',
 };
 
 const COOKIE_KEY = 'messenger_user_id';
 
 export default {
-  name: "App",
+  name: 'App',
   async created() {
-    const socket = io("http://localhost:3030");
+    const socket = io('http://localhost:3030');
     this.client = feathers();
     this.client.configure(socketio(socket));
 
-    this.client.service("users").on("created", user => this.users.push(user));
-    this.client.service("users").on("patched", user => {
-      // eslint-disable-next-line no-underscore-dangle
+    this.client.service('users').on('created', user => this.users.push(user));
+    this.client.service('users').on('patched', (user) => {
       if (user._id === this.currentUser._id) {
         this.currentUser = user;
       }
-      this.users = this.users.map(originalUser => {
-        // eslint-disable-next-line no-underscore-dangle
+      this.users = this.users.map((originalUser) => {
         if (originalUser._id === user._id) {
           return { ...originalUser, ...user };
         }
         return originalUser;
       });
     });
-    this.users = await this.client.service("users").find({});
+    this.users = await this.client.service('users').find({});
 
-    // if no cookie, create users
-    const cookie = document.cookie;
     const userId = Cookies.get(COOKIE_KEY);
-    if (userId) { 
+    if (userId) {
       const results = this.users.filter(user => user._id === userId);
       if (results.length > 0) {
         this.currentUser = results[0];
       }
     } else {
-      // eslint-disable-next-line no-underscore-dangle
-      this.currentUser = await this.client.service("users").create({});
+      this.currentUser = await this.client.service('users').create({});
       Cookies.set(COOKIE_KEY, this.currentUser._id);
     }
-   
+
     // logged in
-    socket.emit("log in", this.currentUser);
+    socket.emit('log in', this.currentUser);
 
     this.client
-      .service("messages")
-      .on("created", message => this.messages.push(message));
-    this.messages = await this.client.service("messages").find({});
+      .service('messages')
+      .on('created', message => this.messages.push(message));
+    this.messages = await this.client.service('messages').find({});
   },
   computed: {
     inputIsEmpty() {
       return this.inputField.length === 0;
     },
     formattedMessages() {
-      return this.messages.map(message => {
+      return this.messages.map((message) => {
         const formattedMessage = { ...message };
         formattedMessage.from = this.users.find(
-          user => user._id === message.from
+          user => user._id === message.from,
         );
         formattedMessage.timestamp = moment(message.createdAt).format(
-          "MMM D h:mm a"
+          'MMM D h:mm a',
         );
         return formattedMessage;
       }).reverse();
     },
     onlineUsers() {
       return this.users.filter(user => user.online === true);
-    }
+    },
   },
   data() {
     return {
       messages: [],
       users: [],
-      inputField: "",
+      inputField: '',
       client: null,
       currentUser: {},
       scrollToBottom: true,
     };
   },
   updated() {
-      this.scrollMessengerToBottom();
-      this.scrollToBottom = false;
+    this.scrollMessengerToBottom();
+    this.scrollToBottom = false;
   },
   methods: {
     isValidNickname(nickname) {
       const sameNickname = this.users.filter(
-        user => user.nickname === nickname
+        user => user.nickname === nickname,
       );
       return sameNickname.length === 0;
     },
     isValidColor(colorToCheck) {
       // TODO
       return true;
-      
     },
     scrollMessengerToBottom() {
       // scroll to bottom
       const scroll = document.getElementById('messagesArea');
       scroll.scrollTop = scroll.scrollHeight;
-      scroll.animate({scrollTop: scroll.scrollHeight});
+      scroll.animate({ scrollTop: scroll.scrollHeight });
     },
     send() {
       if (this.inputField.length > 0) {
         if (this.inputField.startsWith(COMMANDS.NICKNAME)) {
           const nickname = this.inputField.substring(COMMANDS.NICKNAME.length);
           if (this.isValidNickname(nickname)) {
-            // eslint-disable-next-line no-underscore-dangle
             this.client
-              .service("users")
+              .service('users')
               .patch(this.currentUser._id, { nickname });
           } else {
             // eslint-disable-next-line no-alert
             alert(
-              `${nickname} already exists. Please choose another nickname.`
+              `${nickname} already exists. Please choose another nickname.`,
             );
           }
         } else if (this.inputField.startsWith(COMMANDS.NICKCOLOR)) {
           const color = `#${this.inputField.substring(
-            COMMANDS.NICKCOLOR.length
+            COMMANDS.NICKCOLOR.length,
           )}`;
           if (this.isValidColor(color)) {
-            this.client.service("users").patch(this.currentUser._id, { color });
+            this.client.service('users').patch(this.currentUser._id, { color });
           } else {
+            // eslint-disable-next-line no-alert
             alert(`${color} is not a valid color. Please try again in the format rrggbb.`);
           }
         } else {
-          this.client.service("messages").create({
+          this.client.service('messages').create({
             text: this.inputField,
-            from: this.currentUser._id
+            from: this.currentUser._id,
           });
         }
-        this.inputField = "";
+        this.inputField = '';
         this.scrollToBottom = true;
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -200,9 +194,9 @@ body {
 #app {
   background-color: #f7f7f7;
   display: flex;
-  height: 100vh; 
+  height: 100vh;
   font-family: 'Arima Madurai', cursive;
- 
+
   /* justify-content: center; */
   /* flex-direction: column; */
 }
