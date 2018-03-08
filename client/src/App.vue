@@ -1,6 +1,9 @@
 <template>
   <div id="app">
-    <h1>{{currentUser.nickname}}</h1>
+    <div id="header">
+      <!-- <h1>{{currentUser.nickname}}</h1> -->
+    </div>
+    <div id="usersArea">
     <ul class="users">
       <li v-for="user in onlineUsers" :key="user._id" :style="{ 
         color: user._id === currentUser._id ? user.color : undefined, 
@@ -8,95 +11,112 @@
         {{user.nickname}}
       </li>
     </ul>
-    <ul class="messages">
-      <li v-for="message in formattedMessages" :key="message._id" :style="{ color: message.from.color }">
-        <b>{{message.from.nickname}}</b>
-        {{message.timestamp}}
-        <br>
-        {{message.text}}
-      </li>
-    </ul>
+    </div>
+    <div id="messenger">
+      <div id="messagesArea">
+      <ul class="messages">
+        <li v-for="message in formattedMessages" :key="message._id" 
+        :style="{ 
+          backgroundColor: message.from.color,
+          float: message.from._id === currentUser._id ? 'right' : 'left'
+        }">
+          <b>{{message.from.nickname}}</b>
+          {{message.timestamp}}
+          <br>
+          <p :style="{ fontWeight: message.from._id === currentUser._id ? 'bold' : undefined }">
+            {{message.text}}
+          </p>
+        </li>
+      </ul>
+      </div>
+      <div id="inputArea">
     <input v-model="inputField" v-on:keyup.enter="send">
     <button v-on:click="send" :disabled='inputIsEmpty'> Send </button>
+    </div>
+    </div>
   </div>
 </template>
 
 <script>
-
-import * as io from 'socket.io-client';
-import * as feathers from '@feathersjs/feathers';
-import * as socketio from '@feathersjs/socketio-client';
-import * as moment from 'moment';
+import * as io from "socket.io-client";
+import * as feathers from "@feathersjs/feathers";
+import * as socketio from "@feathersjs/socketio-client";
+import * as moment from "moment";
 
 const COMMANDS = {
-  NICKNAME: '/nick ',
-  NICKCOLOR: '/nickcolor ',
+  NICKNAME: "/nick ",
+  NICKCOLOR: "/nickcolor "
 };
 
 export default {
-  name: 'App',
+  name: "App",
   async created() {
-    const socket = io('http://localhost:3030');
+    const socket = io("http://localhost:3030");
     this.client = feathers();
     this.client.configure(socketio(socket));
 
-    this.client.service('users')
-      .on('created', user => this.users.push(user));
-    this.client.service('users')
-      .on('patched', (user) => {
+    this.client.service("users").on("created", user => this.users.push(user));
+    this.client.service("users").on("patched", user => {
+      // eslint-disable-next-line no-underscore-dangle
+      if (user._id === this.currentUser._id) {
+        this.currentUser = user;
+      }
+      this.users = this.users.map(originalUser => {
         // eslint-disable-next-line no-underscore-dangle
-        if (user._id === this.currentUser._id) {
-          this.currentUser = user;
+        if (originalUser._id === user._id) {
+          return { ...originalUser, ...user };
         }
-        this.users = this.users.map((originalUser) => {
-          // eslint-disable-next-line no-underscore-dangle
-          if (originalUser._id === user._id) {
-            return { ...originalUser, ...user };
-          }
-          return originalUser;
-        });
+        return originalUser;
       });
-    this.users = await this.client.service('users').find({});
+    });
+    this.users = await this.client.service("users").find({});
 
     // if no cookie, create users
     // eslint-disable-next-line no-underscore-dangle
-    this.currentUser = (await this.client.service('users').create({}));
+    this.currentUser = await this.client.service("users").create({});
 
     // logged in
-    socket.emit('log in', this.currentUser);
+    socket.emit("log in", this.currentUser);
 
-    this.client.service('messages')
-      .on('created', message => this.messages.push(message));
-    this.messages = await this.client.service('messages').find({});
+    this.client
+      .service("messages")
+      .on("created", message => this.messages.push(message));
+    this.messages = await this.client.service("messages").find({});
   },
   computed: {
     inputIsEmpty() {
       return this.inputField.length === 0;
     },
     formattedMessages() {
-      return this.messages.map((message) => {
+      return this.messages.map(message => {
         const formattedMessage = { ...message };
-        formattedMessage.from = this.users.find(user => user._id === message.from);
-        formattedMessage.timestamp = moment(message.createdAt).format('MMM D h:mm a');
+        formattedMessage.from = this.users.find(
+          user => user._id === message.from
+        );
+        formattedMessage.timestamp = moment(message.createdAt).format(
+          "MMM D h:mm a"
+        );
         return formattedMessage;
       });
     },
     onlineUsers() {
       return this.users.filter(user => user.online === true);
-    },
+    }
   },
   data() {
     return {
       messages: [],
       users: [],
-      inputField: '',
+      inputField: "",
       client: null,
-      currentUser: {},
+      currentUser: {}
     };
   },
   methods: {
     isValidNickname(nickname) {
-      const sameNickname = this.users.filter(user => user.nickname === nickname);
+      const sameNickname = this.users.filter(
+        user => user.nickname === nickname
+      );
       return sameNickname.length === 0;
     },
     send() {
@@ -105,27 +125,89 @@ export default {
           const nickname = this.inputField.substring(COMMANDS.NICKNAME.length);
           if (this.isValidNickname(nickname)) {
             // eslint-disable-next-line no-underscore-dangle
-            this.client.service('users').patch(this.currentUser._id, { nickname });
+            this.client
+              .service("users")
+              .patch(this.currentUser._id, { nickname });
           } else {
             // eslint-disable-next-line no-alert
-            alert(`${nickname} already exists. Please choose another nickname.`);
+            alert(
+              `${nickname} already exists. Please choose another nickname.`
+            );
           }
-        } else if (this.inputField.startsWith(COMMANDS.NICKCOLOR)) { 
-          const color = `#${this.inputField.substring(COMMANDS.NICKCOLOR.length)}`;
+        } else if (this.inputField.startsWith(COMMANDS.NICKCOLOR)) {
+          const color = `#${this.inputField.substring(
+            COMMANDS.NICKCOLOR.length
+          )}`;
           // TODO validate
-          this.client.service('users').patch(this.currentUser._id, { color });
-        }else {
-          this.client.service('messages').create({
+          this.client.service("users").patch(this.currentUser._id, { color });
+        } else {
+          this.client.service("messages").create({
             text: this.inputField,
-            from: this.currentUser._id,
+            from: this.currentUser._id
           });
         }
-        this.inputField = '';
+        this.inputField = "";
       }
-    },
-  },
+    }
+  }
 };
 </script>
 
 <style>
+body {
+  margin: 0px;
+  padding: 0px;
+}
+#app {
+  background-color: #f7f7f7;
+  display: flex;
+  height: 100vh; 
+ 
+  /* justify-content: center; */
+  /* flex-direction: column; */
+}
+.messages {
+  color: black;
+  padding: 0px;
+  display: flex;
+  flex-direction: column-reverse;
+  /* overflow-y: auto; */
+}
+
+.messages li {
+  list-style: none;
+  border-radius: 10px;
+  padding: 10px;
+  margin: 10px;
+  width: 50%;
+}
+
+.messages li p {
+  padding: 0px;
+  margin: 0px;
+}
+#messenger {
+  width: 80%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+#messagesArea {
+  /* flex-grow: 1; */
+  overflow-y: auto;
+  /* flex- */
+}
+
+#inputArea {
+  margin: 5px;
+  height: 20%;
+}
+
+#inputArea input {
+  height: 100%;
+  width: 100%;
+}
 </style>
