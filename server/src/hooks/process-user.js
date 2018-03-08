@@ -1,3 +1,5 @@
+var randomColor = require('randomcolor');
+
 // Use this hook to manipulate incoming or outgoing data.
 // For more information on hooks see: http://docs.feathersjs.com/api/hooks.html
 
@@ -14,7 +16,8 @@ function generateRandomNickName() {
 module.exports = function (options = {}) {
   return async context => {
     context.data = {
-      nickname: generateRandomNickName()
+      nickname: generateRandomNickName(),
+      color: randomColor()
     }
     return context;
   };

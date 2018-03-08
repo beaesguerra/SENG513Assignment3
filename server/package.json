@@ -24,7 +24,8 @@
   "scripts": {
     "test": "npm run eslint && npm run mocha",
     "eslint": "eslint src/. test/. --config .eslintrc.json",
-    "start": "node src/",
+    "start": "npm run clean && node src/",
+    "clean": "rm -rf data/",
     "mocha": "mocha test/ --recursive --exit"
   },
   "dependencies": {
@@ -38,6 +39,7 @@
     "feathers-nedb": "^3.0.0",
     "helmet": "^3.12.0",
     "nedb": "^1.8.0",
+    "randomcolor": "^0.5.3",
     "serve-favicon": "^2.4.5",
     "winston": "^2.4.0"
   },

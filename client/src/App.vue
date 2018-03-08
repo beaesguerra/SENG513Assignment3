@@ -7,7 +7,7 @@
       </li>
     </ul>
     <ul class="messages">
-      <li v-for="message in formattedMessages" :key="message._id">
+      <li v-for="message in formattedMessages" :key="message._id" :style="{ color: message.from.color }">
         <b>{{message.from.nickname}}</b>
         {{message.timestamp}}
         <br>
