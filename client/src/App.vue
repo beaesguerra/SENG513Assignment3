@@ -27,7 +27,8 @@ import * as socketio from '@feathersjs/socketio-client';
 import * as moment from 'moment';
 
 const COMMANDS = {
-  NICKNAME: '/nick',
+  NICKNAME: '/nick ',
+  NICKCOLOR: '/nickcolor ',
 };
 
 export default {
@@ -98,7 +99,7 @@ export default {
     send() {
       if (this.inputField.length > 0) {
         if (this.inputField.startsWith(COMMANDS.NICKNAME)) {
-          const nickname = this.inputField.substring(COMMANDS.NICKNAME.length + 1);
+          const nickname = this.inputField.substring(COMMANDS.NICKNAME.length);
           if (this.isValidNickname(nickname)) {
             // eslint-disable-next-line no-underscore-dangle
             this.client.service('users').patch(this.currentUser._id, { nickname });
@@ -106,7 +107,11 @@ export default {
             // eslint-disable-next-line no-alert
             alert(`${nickname} already exists. Please choose another nickname.`);
           }
-        } else {
+        } else if (this.inputField.startsWith(COMMANDS.NICKCOLOR)) { 
+          const color = `#${this.inputField.substring(COMMANDS.NICKCOLOR.length)}`;
+          // TODO validate
+          this.client.service('users').patch(this.currentUser._id, { color });
+        }else {
           this.client.service('messages').create({
             text: this.inputField,
             from: this.currentUser,
