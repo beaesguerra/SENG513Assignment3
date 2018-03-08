@@ -4,6 +4,7 @@
       <!-- <h1>{{currentUser.nickname}}</h1> -->
     </div>
     <div id="usersArea">
+      <h1>messenger</h1>
     <h3>Users ({{ onlineUsers.length }})</h3>
     <ul class="users">
       <li v-for="user in users" :key="user._id" :style="{ 
@@ -218,7 +219,7 @@ body {
   border-radius: 10px;
   padding: 10px;
   margin: 10px;
-  width: 50%;
+  max-width: 50%;
   word-wrap: break-word;
 }
 
@@ -282,6 +283,9 @@ body {
    overflow-y: auto;
 }
 
+.users {
+  margin: 0px;
+}
 .users li {
   list-style: none;
 }
@@ -292,6 +296,9 @@ body {
 
 h3 {
   color: white;
+  /* padding: 5px; */
+  margin: 0px;
+  /* border-bottom: 1px solid white; */
 }
 
 .timestamp {
@@ -304,5 +311,12 @@ h3 {
 
 #sendButton:disabled {
   fill: lightgray;
+}
+
+h1 {
+  font-family: 'Dancing Script', cursive;
+  color: white;
+  text-align: center;
+
 }
 </style>
