@@ -36,7 +36,9 @@ export default {
     this.client.service('users')
       .on('created', user => this.users.push(user));
     this.client.service('users')
-      .on('patch', (user) => {
+      .on('patched', (user) => {
+        console.log("PATCHED" );
+        console.log(user);
         this.users = this.users.map((originalUser) => {
           // eslint-disable-next-line no-underscore-dangle
           if (originalUser._id === user.id) {
@@ -53,6 +55,7 @@ export default {
 
     // logged in
     socket.emit('log in', this.currentUser);
+
     this.client.service('messages')
       .on('created', message => this.messages.push(message));
     this.messages = await this.client.service('messages').find({});
