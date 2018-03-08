@@ -37,16 +37,16 @@ export default {
       .on('created', user => this.users.push(user));
     this.client.service('users')
       .on('patched', (user) => {
-        console.log("PATCHED" );
-        console.log(user);
         if (user._id === this.currentUser._id) {
           this.currentUser = user;
         }
         this.users = this.users.map((originalUser) => {
-          console.log(user);
           // eslint-disable-next-line no-underscore-dangle
-          if (originalUser._id === user.id) {
-            return user;
+          if (originalUser._id === user._id) {
+            console.log(user);
+            console.log(originalUser);
+            console.log('===========')
+            return { ...originalUser, ...user };
           }
           return originalUser;
         });
