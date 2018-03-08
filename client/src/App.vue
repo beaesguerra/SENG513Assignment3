@@ -4,11 +4,13 @@
       <!-- <h1>{{currentUser.nickname}}</h1> -->
     </div>
     <div id="usersArea">
+    <h3>Users ({{ onlineUsers.length }})</h3>
     <ul class="users">
-      <li v-for="user in onlineUsers" :key="user._id" :style="{ 
-        color: user._id === currentUser._id ? user.color : undefined, 
-        fontWeight: user._id === currentUser._id ? 'bold' : undefined }">
-        {{user.nickname}}
+      <li v-for="user in users" :key="user._id" :style="{ 
+        color: user.online ? user.color : '#696969',
+        fontWeight: user._id === currentUser._id ? 'bold' : undefined
+        }">
+        {{user.nickname}} {{ user._id === currentUser._id ? ' (you)' : '' }}
       </li>
     </ul>
     </div>
@@ -19,20 +21,22 @@
         <li v-for="message in formattedMessages" :key="message._id" 
         :style="{ 
           backgroundColor: message.from.color,
-          float: message.from._id === currentUser._id ? 'right' : 'left'
+          alignSelf: message.from._id === currentUser._id ? 'flex-end' : 'flex-start'
         }">
           <b>{{message.from.nickname}}</b>
-          {{message.timestamp}}
+          <span class="timestamp">{{message.timestamp}}</span>
           <br>
-          <p :style="{ fontWeight: message.from._id === currentUser._id ? 'bold' : undefined }">
             {{message.text}}
-          </p>
         </li>
       </ul>
       </div>
       <div id="inputArea">
-    <input v-model="inputField" v-on:keyup.enter="send">
-    <button v-on:click="send" :disabled='inputIsEmpty'> Send </button>
+    <textarea v-model="inputField" v-on:keyup.enter="send" placeholder="Message"/>
+    <button v-on:click="send" :disabled='inputIsEmpty' id="sendButton"> 
+      <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+    <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z" />
+</svg>
+       </button>
     </div>
     </div>
   </div>
@@ -175,6 +179,7 @@ body {
   background-color: #f7f7f7;
   display: flex;
   height: 100vh; 
+  font-family: 'Arima Madurai', cursive;
  
   /* justify-content: center; */
   /* flex-direction: column; */
@@ -193,6 +198,7 @@ body {
   padding: 10px;
   margin: 10px;
   width: 50%;
+  word-wrap: break-word;
 }
 
 .messages li p {
@@ -200,7 +206,7 @@ body {
   margin: 0px;
 }
 #messenger {
-  width: 80%;
+  width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -209,26 +215,73 @@ body {
 }
 
 #messagesArea {
-  /* flex-grow: 1; */
   overflow-y: auto;
-  /* flex- */
 }
 
 #inputArea {
-  margin: 5px;
+  margin: 0px;
   padding: 10px;
-  height: 5%;
+  height: 9%;
   display: flex;
   flex: 0 0 auto;
+  background-color: white;
 }
 
-#inputArea input {
+#inputArea textarea {
   height: 100%;
   width: 100%;
+  padding: 0px;
+  border: none;
+      overflow: auto;
+    outline: none;
+
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+    resize: none;
 }
 
+#inputArea button {
+  height: 100%;
+  background-color: white;
+  padding: 10px;
+  margin: 0px;
+  border: none;
+  box-sizing: none;
+}
 #spacer {
   height: 0;
   flex-grow: 1;
+}
+#usersArea {
+  padding: 10px;
+  background-color: #a8a8a8;
+  flex: 1 0 auto;
+  width: 13%;
+   overflow-y: auto;
+}
+
+.users li {
+  list-style: none;
+}
+
+#usersArea ul {
+  padding: 0px;
+}
+
+h3 {
+  color: white;
+}
+
+.timestamp {
+  font-size: 12px;
+}
+
+#sendButton:disabled {
+  fill: gray;
+}
+
+#sendButton:disabled {
+  fill: lightgray;
 }
 </style>
