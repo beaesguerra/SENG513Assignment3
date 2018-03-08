@@ -39,10 +39,14 @@ export default {
       .on('patched', (user) => {
         console.log("PATCHED" );
         console.log(user);
+        if (user._id === this.currentUser._id) {
+          this.currentUser = user;
+        }
         this.users = this.users.map((originalUser) => {
+          console.log(user);
           // eslint-disable-next-line no-underscore-dangle
           if (originalUser._id === user.id) {
-            return { ...originalUser, ...user };
+            return user;
           }
           return originalUser;
         });
@@ -51,7 +55,7 @@ export default {
 
     // if no cookie, create users
     // eslint-disable-next-line no-underscore-dangle
-    this.currentUserId = (await this.client.service('users').create({}))._id;
+    this.currentUser = (await this.client.service('users').create({}));
 
     // logged in
     socket.emit('log in', this.currentUser);
@@ -74,12 +78,6 @@ export default {
     onlineUsers() {
       return this.users.filter(user => user.online === true);
     },
-    currentUser() {
-      // eslint-disable-next-line no-underscore-dangle
-      const foundUser = this.users.find(user => user._id === this.currentUserId);
-
-      return foundUser || { };
-    },
   },
   data() {
     return {
@@ -87,7 +85,7 @@ export default {
       users: [],
       inputField: '',
       client: null,
-      currentUserId: '',
+      currentUser: {},
     };
   },
   methods: {
