@@ -1,7 +1,12 @@
 <template>
   <div id="app">
-    <h1>{{this.currentUser.nickname}}</h1>
-    <ul>
+    <h1>{{currentUser.nickname}}</h1>
+    <ul class="users">
+      <li v-for="user in onlineUsers" :key="user._id">
+        {{user.nickname}}
+      </li>
+    </ul>
+    <ul class="messages">
       <li v-for="message in formattedMessages" :key="message._id">
         <b>{{message.from.nickname}}</b>
         {{message.timestamp}}
@@ -27,17 +32,30 @@ export default {
     const socket = io('http://localhost:3030');
     this.client = feathers();
     this.client.configure(socketio(socket));
-    this.client.service('messages')
-      .on('created', message => this.messages.push(message));
-    this.messages = await this.client.service('messages').find({});
 
     this.client.service('users')
       .on('created', user => this.users.push(user));
+    this.client.service('users')
+      .on('patch', (user) => {
+        this.users = this.users.map((originalUser) => {
+          // eslint-disable-next-line no-underscore-dangle
+          if (originalUser._id === user.id) {
+            return { ...originalUser, ...user };
+          }
+          return originalUser;
+        });
+      });
     this.users = await this.client.service('users').find({});
 
     // if no cookie, create users
-    this.currentUser = await this.client.service('users').create({
-    });
+    // eslint-disable-next-line no-underscore-dangle
+    this.currentUserId = (await this.client.service('users').create({}))._id;
+
+    // logged in
+    socket.emit('log in', this.currentUser);
+    this.client.service('messages')
+      .on('created', message => this.messages.push(message));
+    this.messages = await this.client.service('messages').find({});
   },
   computed: {
     inputIsEmpty() {
@@ -50,6 +68,15 @@ export default {
         return formattedMessage;
       });
     },
+    onlineUsers() {
+      return this.users.filter(user => user.online === true);
+    },
+    currentUser() {
+      // eslint-disable-next-line no-underscore-dangle
+      const foundUser = this.users.find(user => user._id === this.currentUserId);
+
+      return foundUser || { };
+    },
   },
   data() {
     return {
@@ -57,7 +84,7 @@ export default {
       users: [],
       inputField: '',
       client: null,
-      currentUser: '',
+      currentUserId: '',
     };
   },
   methods: {
