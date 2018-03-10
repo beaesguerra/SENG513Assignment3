@@ -135,7 +135,7 @@ export default {
       const sameNickname = this.users.filter(
         user => user.nickname === nickname,
       );
-      return sameNickname.length === 0;
+      return sameNickname.length === 0 && nickname.length > 0;
     },
     isValidColor(colorToCheck) {
       return colorToCheck.length === 6 && !isNaN(parseInt(colorToCheck, 16));
@@ -158,7 +158,7 @@ export default {
           } else {
             // eslint-disable-next-line no-alert
             alert(
-              `${nickname} already exists. Please choose another nickname.`,
+              `'${nickname}' already exists or is invalid. Please choose another nickname.`,
             );
           }
         } else if (this.inputField.startsWith(COMMANDS.NICKCOLOR)) {
@@ -172,7 +172,7 @@ export default {
           } else {
             // eslint-disable-next-line no-alert
             alert(
-              `${colorValue} is not a valid color. Please try again in the format rrggbb.`,
+              `'${colorValue}' is not a valid color. Please try again in the format rrggbb.`,
             );
           }
         } else {
