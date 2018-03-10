@@ -211,8 +211,9 @@ body {
   border-radius: 10px;
   padding: 10px;
   margin: 10px;
-  max-width: 50%;
+  max-width: 75%;
   word-wrap: break-word;
+  font-size: 2.1vh;
 }
 
 .messages li p {
@@ -271,12 +272,13 @@ body {
   padding: 10px;
   background-color: #a8a8a8;
   flex: 1 0 auto;
-  width: 13%;
-   overflow-y: auto;
+  width: 20%;
+  overflow-y: auto;
 }
 
 .users {
   margin: 0px;
+  font-size: 2.1vh;
 }
 .users li {
   list-style: none;
@@ -289,10 +291,11 @@ body {
 h3 {
   color: white;
   margin: 0px;
+  font-size: 2.5vh;
 }
 
 .timestamp {
-  font-size: 12px;
+  font-size: 1.7vh;
 }
 
 #sendButton {
@@ -307,6 +310,6 @@ h1 {
   font-family: 'Dancing Script', cursive;
   color: white;
   text-align: center;
-
+  font-size: 3vh;
 }
 </style>
