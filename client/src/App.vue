@@ -82,6 +82,9 @@ export default {
       const results = this.users.filter(user => user._id === userId);
       if (results.length > 0) {
         this.currentUser = results[0];
+      } else {
+        this.currentUser = await this.client.service('users').create({});
+        Cookies.set(COOKIE_KEY, this.currentUser._id);
       }
     } else {
       this.currentUser = await this.client.service('users').create({});
