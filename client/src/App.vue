@@ -1,14 +1,13 @@
 <template>
   <div id="app">
     <div id="header">
-      <!-- <h1>{{currentUser.nickname}}</h1> -->
     </div>
     <div id="usersArea">
       <h1>messenger</h1>
-    <h3>Users ({{ onlineUsers.length }})</h3>
+    <h3>Online Users ({{ onlineUsers.length }})</h3>
     <ul class="users">
-      <li v-for="user in users" :key="user._id" :style="{
-        color: user.online ? user.color : '#696969',
+      <li v-for="user in onlineUsers" :key="user._id" :style="{
+        color: user.color,
         fontWeight: user._id === currentUser._id ? 'bold' : undefined
         }">
         {{user.nickname}} {{ user._id === currentUser._id ? ' (you)' : '' }}
@@ -289,17 +288,15 @@ body {
 
 h3 {
   color: white;
-  /* padding: 5px; */
   margin: 0px;
-  /* border-bottom: 1px solid white; */
 }
 
 .timestamp {
   font-size: 12px;
 }
 
-#sendButton:disabled {
-  fill: gray;
+#sendButton {
+  fill: #a8a8a8;
 }
 
 #sendButton:disabled {
