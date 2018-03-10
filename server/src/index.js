@@ -15,10 +15,9 @@ server.on('listening', () =>
 server.on('listening', () => {
   app.io.on('connect', (socket) => { 
     socket.on('log in', (user) => {
-      console.log(user.nickname);
+      // app.service('users').get()
       app.service('users').patch(user._id, { online: true })
       socket.on('disconnect', () => {
-        console.log('logging out');
         app.service('users').patch(user._id, { online: false })
       })
     });

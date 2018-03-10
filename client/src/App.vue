@@ -132,9 +132,7 @@ export default {
   },
   methods: {
     isValidNickname(nickname) {
-      const sameNickname = this.users.filter(
-        user => user.nickname === nickname,
-      );
+      const sameNickname = this.users.filter(user => user.nickname === nickname);
       return sameNickname.length === 0;
     },
     isValidColor(colorToCheck) {
@@ -149,7 +147,7 @@ export default {
     send() {
       if (this.inputField.length > 0) {
         if (this.inputField.startsWith(COMMANDS.NICKNAME)) {
-          const nickname = this.inputField.substring(COMMANDS.NICKNAME.length);
+          const nickname = this.inputField.substring(COMMANDS.NICKNAME.length).trim();
           if (this.isValidNickname(nickname)) {
             this.client
               .service('users')
