@@ -139,8 +139,7 @@ export default {
       return sameNickname.length === 0;
     },
     isValidColor(colorToCheck) {
-      // TODO
-      return true;
+      return colorToCheck.length === 6 && !isNaN(parseInt(colorToCheck, 16));
     },
     scrollMessengerToBottom() {
       // scroll to bottom
@@ -163,14 +162,14 @@ export default {
             );
           }
         } else if (this.inputField.startsWith(COMMANDS.NICKCOLOR)) {
-          const color = `#${this.inputField.substring(
+          const colorValue = this.inputField.substring(
             COMMANDS.NICKCOLOR.length,
-          )}`;
-          if (this.isValidColor(color)) {
-            this.client.service('users').patch(this.currentUser._id, { color });
+          ).trim();
+          if (this.isValidColor(colorValue)) {
+            this.client.service('users').patch(this.currentUser._id, { color: `#${colorValue}` });
           } else {
             // eslint-disable-next-line no-alert
-            alert(`${color} is not a valid color. Please try again in the format rrggbb.`);
+            alert(`${colorValue} is not a valid color. Please try again in the format rrggbb.`);
           }
         } else {
           this.client.service('messages').create({

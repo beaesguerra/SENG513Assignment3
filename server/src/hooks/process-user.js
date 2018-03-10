@@ -17,7 +17,7 @@ module.exports = function (options = {}) {
   return async context => {
     context.data = {
       nickname: generateRandomNickName(),
-      color: randomColor()
+      color: randomColor({ luminosity: 'light' })
     }
     return context;
   };
