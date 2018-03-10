@@ -41,39 +41,39 @@
 </template>
 
 <script>
-import * as io from "socket.io-client";
-import * as feathers from "@feathersjs/feathers";
-import * as socketio from "@feathersjs/socketio-client";
-import * as moment from "moment";
-import Cookies from "js-cookie";
+import * as io from 'socket.io-client';
+import * as feathers from '@feathersjs/feathers';
+import * as socketio from '@feathersjs/socketio-client';
+import * as moment from 'moment';
+import Cookies from 'js-cookie';
 
 const COMMANDS = {
-  NICKNAME: "/nick ",
-  NICKCOLOR: "/nickcolor "
+  NICKNAME: '/nick ',
+  NICKCOLOR: '/nickcolor ',
 };
 
-const COOKIE_KEY = "messenger_user_id";
+const COOKIE_KEY = 'messenger_user_id';
 
 export default {
-  name: "App",
+  name: 'App',
   async created() {
-    const socket = io("http://localhost:3030");
+    const socket = io('http://localhost:3030');
     this.client = feathers();
     this.client.configure(socketio(socket));
 
-    this.client.service("users").on("created", user => this.users.push(user));
-    this.client.service("users").on("patched", user => {
+    this.client.service('users').on('created', user => this.users.push(user));
+    this.client.service('users').on('patched', (user) => {
       if (user._id === this.currentUser._id) {
         this.currentUser = user;
       }
-      this.users = this.users.map(originalUser => {
+      this.users = this.users.map((originalUser) => {
         if (originalUser._id === user._id) {
           return { ...originalUser, ...user };
         }
         return originalUser;
       });
     });
-    this.users = await this.client.service("users").find({});
+    this.users = await this.client.service('users').find({});
 
     const userId = Cookies.get(COOKIE_KEY);
     if (userId) {
@@ -81,21 +81,20 @@ export default {
       if (results.length > 0) {
         this.currentUser = results[0];
       } else {
-        this.currentUser = await this.client.service("users").create({});
+        this.currentUser = await this.client.service('users').create({});
         Cookies.set(COOKIE_KEY, this.currentUser._id);
       }
     } else {
-      this.currentUser = await this.client.service("users").create({});
+      this.currentUser = await this.client.service('users').create({});
       Cookies.set(COOKIE_KEY, this.currentUser._id);
     }
 
-    // logged in
-    socket.emit("log in", this.currentUser);
+    socket.emit('log in', this.currentUser);
 
     this.client
-      .service("messages")
-      .on("created", message => this.messages.push(message));
-    this.messages = await this.client.service("messages").find({});
+      .service('messages')
+      .on('created', message => this.messages.push(message));
+    this.messages = await this.client.service('messages').find({});
   },
   computed: {
     inputIsEmpty() {
@@ -103,13 +102,13 @@ export default {
     },
     formattedMessages() {
       return this.messages
-        .map(message => {
+        .map((message) => {
           const formattedMessage = { ...message };
           formattedMessage.from = this.users.find(
-            user => user._id === message.from
+            user => user._id === message.from,
           );
           formattedMessage.timestamp = moment(message.createdAt).format(
-            "MMM D h:mm a"
+            'MMM D h:mm a',
           );
           return formattedMessage;
         })
@@ -117,13 +116,13 @@ export default {
     },
     onlineUsers() {
       return this.users.filter(user => user.online === true);
-    }
+    },
   },
   data() {
     return {
       messages: [],
       users: [],
-      inputField: "",
+      inputField: '',
       client: null,
       currentUser: {},
     };
@@ -134,7 +133,7 @@ export default {
   methods: {
     isValidNickname(nickname) {
       const sameNickname = this.users.filter(
-        user => user.nickname === nickname
+        user => user.nickname === nickname,
       );
       return sameNickname.length === 0;
     },
@@ -142,8 +141,7 @@ export default {
       return colorToCheck.length === 6 && !isNaN(parseInt(colorToCheck, 16));
     },
     scrollMessengerToBottom() {
-      // scroll to bottom
-      const scroll = document.getElementById("messagesArea");
+      const scroll = document.getElementById('messagesArea');
       scroll.scrollTop = scroll.scrollHeight;
       scroll.animate({ scrollTop: scroll.scrollHeight });
     },
@@ -155,12 +153,12 @@ export default {
             .trim();
           if (this.isValidNickname(nickname)) {
             this.client
-              .service("users")
+              .service('users')
               .patch(this.currentUser._id, { nickname });
           } else {
             // eslint-disable-next-line no-alert
             alert(
-              `${nickname} already exists. Please choose another nickname.`
+              `${nickname} already exists. Please choose another nickname.`,
             );
           }
         } else if (this.inputField.startsWith(COMMANDS.NICKCOLOR)) {
@@ -169,24 +167,24 @@ export default {
             .trim();
           if (this.isValidColor(colorValue)) {
             this.client
-              .service("users")
+              .service('users')
               .patch(this.currentUser._id, { color: `#${colorValue}` });
           } else {
             // eslint-disable-next-line no-alert
             alert(
-              `${colorValue} is not a valid color. Please try again in the format rrggbb.`
+              `${colorValue} is not a valid color. Please try again in the format rrggbb.`,
             );
           }
         } else {
-          this.client.service("messages").create({
+          this.client.service('messages').create({
             text: this.inputField,
-            from: this.currentUser._id
+            from: this.currentUser._id,
           });
         }
-        this.inputField = "";
+        this.inputField = '';
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
